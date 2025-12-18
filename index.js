@@ -177,9 +177,6 @@ async function run() {
         { email: email },
         { $set: req.body }
       );
-      console.log(result)
-      // if (result.matchedCount === 0)
-      //   return res.status(404).send("User not found");
       res.send(result);
     });
 
