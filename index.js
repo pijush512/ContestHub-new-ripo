@@ -203,7 +203,7 @@ async function run() {
       res.send(result);
     });
 
-    // Winners Section এর জন্য সব বিজয়ীদের তথ্য পাওয়ার API
+    // Winners Section API show in home page
     app.get("/contest/winners", async (req, res) => {
       try {
         const winners = await contestCollection
@@ -229,7 +229,6 @@ async function run() {
                 name: {
                   $ifNull: ["$winnerName", "$userDetails.name", "Unknown"],
                 },
-                // এখানে চেক করবে image অথবা photoURL ফিল্ড আছে কি না
                 photo: {
                   $ifNull: [
                     "$userDetails.image",
@@ -366,6 +365,12 @@ async function run() {
         },
       };
       const result = await contestCollection.updateOne(filter, updateDoc);
+      
+       await usersCollection.updateOne(
+        { email: winnerEmail },
+        { $inc: { winCount: 1 } }
+      );
+
       res.send(result);
     });
 
