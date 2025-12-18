@@ -318,7 +318,6 @@ async function run() {
       res.send(result);
     });
 
-  
     app.get("/contest/won/:email", async (req, res) => {
       const email = req.params.email;
       const query = { winnerEmail: email };
@@ -349,6 +348,7 @@ async function run() {
 
       res.send({
         alreadyRegistered: !!existing,
+        taskSubmitted: !!existing,
       });
     });
 
@@ -677,7 +677,7 @@ async function run() {
     // leaderboard
     app.get("/leaderboard", async (req, res) => {
       const result = await usersCollection
-        .find({ winCount: { $gt: 0 } }) 
+        .find({ winCount: { $gt: 0 } })
         .sort({ winCount: -1 })
         .limit(10)
         .toArray();
