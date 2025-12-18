@@ -122,11 +122,9 @@ async function run() {
       const user = req.body;
       user.role = "user";
       user.createdAt = new Date();
-
       const email = user.email;
-
       const userExists = await usersCollection.findOne({ email });
-
+      
       if (userExists) {
         return res.send({ message: "user exists" });
       }
