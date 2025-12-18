@@ -124,7 +124,7 @@ async function run() {
       user.createdAt = new Date();
       const email = user.email;
       const userExists = await usersCollection.findOne({ email });
-      
+
       if (userExists) {
         return res.send({ message: "user exists" });
       }
@@ -422,7 +422,6 @@ async function run() {
       const { email } = req.params;
 
       try {
-        // User er sob participation fetch
         const participations = await participateCollection
           .find({ userEmail: email })
           .toArray();
