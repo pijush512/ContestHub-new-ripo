@@ -165,8 +165,9 @@ async function run() {
 
     app.patch("/users/:email", async (req, res) => {
       const email = req.params.email;
-
-      if (req.user.email !== email) {
+      
+      const isExists = await usersCollection.findOne({ email });
+      if (isExists.email !== email) {
         return res
           .status(403)
           .send({ message: "Forbidden access: Cannot edit other profiles" });
@@ -176,9 +177,10 @@ async function run() {
         { email: email },
         { $set: req.body }
       );
-      if (result.matchedCount === 0)
-        return res.status(404).send("User not found");
-      res.send("Profile updated!");
+      console.log(result)
+      // if (result.matchedCount === 0)
+      //   return res.status(404).send("User not found");
+      res.send(result);
     });
 
     // Role wise user update // !! Use role
