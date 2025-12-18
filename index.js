@@ -425,8 +425,6 @@ async function run() {
         const participations = await participateCollection
           .find({ userEmail: email })
           .toArray();
-
-        //Contest er info add koroa
         const contests = await Promise.all(
           participations.map(async (p) => {
             const contest = await contestCollection.findOne({
@@ -453,15 +451,12 @@ async function run() {
       try {
         const { contestId, userEmail, registeredAt } = req.body;
 
-        // 1️⃣ Payload validation
         if (!contestId || !userEmail) {
           console.log("Missing contestId or userEmail:", req.body);
           return res
             .status(400)
             .send({ message: "contestId & userEmail are required" });
         }
-
-        // 2️⃣ Duplicate check
         const existing = await participateCollection.findOne({
           contestId,
           userEmail,
@@ -470,8 +465,6 @@ async function run() {
           console.log("Already registered:", { contestId, userEmail });
           return res.status(400).send({ message: "Already registered" });
         }
-
-        // 3️⃣ Insert participation
         const participationData = {
           contestId,
           userEmail,
@@ -481,7 +474,6 @@ async function run() {
         const result = await participateCollection.insertOne(participationData);
         console.log("Participation Insert Result:", result);
 
-        // 4️⃣ Send response
         res.send({
           success: true,
           message: "Successfully registered",
@@ -494,7 +486,6 @@ async function run() {
     });
 
     // Payment related API
-    // !! Use role
     app.get("/payments", veriffyFBToken, async (req, res) => {
       const email = req.query.email;
       const query = {};
@@ -517,7 +508,6 @@ async function run() {
       const session = await stripe.checkout.sessions.create({
         line_items: [
           {
-            // Provide the exact Price ID (for example, price_1234) of the product you want to sell
             price_data: {
               currency: "USD",
               unit_amount: amount,
@@ -539,7 +529,6 @@ async function run() {
       });
 
       // res.redirect(303, session.url);
-      console.log(session);
       res.send({ url: session.url });
     });
 
@@ -743,7 +732,6 @@ async function run() {
         .toArray();
       res.send(result);
     });
-    // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
