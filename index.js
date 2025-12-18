@@ -346,9 +346,14 @@ async function run() {
         userEmail,
       });
 
+      const submission = await submissionsCollection.findOne({
+        contestId,
+        userEmail,
+      });
+
       res.send({
         alreadyRegistered: !!existing,
-        taskSubmitted: !!existing,
+        taskSubmitted: !!submission,
       });
     });
 
@@ -650,20 +655,16 @@ async function run() {
     });
 
     // ! Use Role
-    // ক্রিয়েটরের সব কন্টেস্টের সব সাবমিশন একসাথে পাওয়ার API
     app.get(
       "/creator/all-submissions/:email",
       veriffyFBToken,
       async (req, res) => {
         const email = req.params.email;
-
-        // ১. প্রথমে ক্রিয়েটরের সব কন্টেস্ট আইডি খুঁজে বের করা
         const creatorContests = await contestCollection
           .find({ creatorEmail: email })
           .toArray();
         const contestIds = creatorContests.map((c) => c._id.toString());
 
-        // ২. ওই আইডিগুলো ব্যবহার করে সব সাবমিশন খুঁজে বের করা
         const submissions = await submissionsCollection
           .find({
             contestId: { $in: contestIds },
