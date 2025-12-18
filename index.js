@@ -203,6 +203,57 @@ async function run() {
       res.send(result);
     });
 
+    // Winners Section এর জন্য সব বিজয়ীদের তথ্য পাওয়ার API
+    app.get("/contest/winners", async (req, res) => {
+      try {
+        const winners = await contestCollection
+          .aggregate([
+            { $match: { status: "completed" } },
+            {
+              $lookup: {
+                from: "users",
+                localField: "winnerEmail",
+                foreignField: "email",
+                as: "userDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$userDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            { $sort: { winDate: -1 } },
+            {
+              $project: {
+                name: {
+                  $ifNull: ["$winnerName", "$userDetails.name", "Unknown"],
+                },
+                // এখানে চেক করবে image অথবা photoURL ফিল্ড আছে কি না
+                photo: {
+                  $ifNull: [
+                    "$userDetails.image",
+                    "$userDetails.photoURL",
+                    "$winnerPhoto",
+                    "https://www.w3schools.com/howto/img_avatar.png",
+                  ],
+                },
+                email: "$winnerEmail",
+                contest: "$name",
+                prize: "$prize",
+                winDate: "$winDate",
+              },
+            },
+          ])
+          .toArray();
+
+        res.send(winners);
+      } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send({ message: "Error loading winners" });
+      }
+    });
+
     // GET contests by creator email
     app.get("/contest/creator/:email", async (req, res) => {
       const { email } = req.params;
