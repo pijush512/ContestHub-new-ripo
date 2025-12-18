@@ -276,7 +276,7 @@ async function run() {
 
     app.get("/contests", async (req, res) => {
       try {
-        const { type } = req.query;
+        const { type, search } = req.query;
         const filter = { status: "approved" };
 
         if (type && type !== "all") {
@@ -287,6 +287,13 @@ async function run() {
             "Gaming Reviews": "gaming-review",
           };
           filter.type = typeMap[type];
+        }
+
+        if (search) {
+          filter.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { type: { $regex: search, $options: "i" } },
+          ];
         }
 
         const contests = await contestCollection
@@ -365,8 +372,8 @@ async function run() {
         },
       };
       const result = await contestCollection.updateOne(filter, updateDoc);
-      
-       await usersCollection.updateOne(
+
+      await usersCollection.updateOne(
         { email: winnerEmail },
         { $inc: { winCount: 1 } }
       );
