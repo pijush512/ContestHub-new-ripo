@@ -658,42 +658,6 @@ async function run() {
         res.status(500).send({ success: false, message: "Server error" });
       }
     });
-
-    // see submission
-    //   try {
-    //     const { contestId, userEmail, taskLink, submittedAt } = req.body;
-
-    //     // 1️⃣ Check duplicate submission
-    //     const existing = await submissionsCollection.findOne({
-    //       contestId,
-    //       userEmail,
-    //     });
-    //     if (existing) {
-    //       return res.send({
-    //         success: false,
-    //         message: "You already submitted this contest",
-    //       });
-    //     }
-
-    //     // 2️⃣ Insert submission
-    //     const result = await submissionsCollection.insertOne({
-    //       contestId,
-    //       userEmail,
-    //       taskLink,
-    //       submittedAt: submittedAt || new Date(),
-    //     });
-
-    //     res.send({
-    //       success: true,
-    //       message: "Task submitted successfully",
-    //       result,
-    //     });
-    //   } catch (err) {
-    //     console.error(err);
-    //     res.status(500).send({ success: false, message: "Server error" });
-    //   }
-    // });
-
     // Show creator dashbord api
     app.get("/creator/submissions/:contestId", async (req, res) => {
       const { contestId } = req.params;
