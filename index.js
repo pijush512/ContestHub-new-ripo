@@ -15,9 +15,10 @@ const admin = require("firebase-admin");
 
 // const serviceAccount = require("./firebase-admin-key.json");
 
-const decoded = Buffer.from(process.env.FB_SERVICE_KEY, 'base64').toString('utf8')
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString(
+  "utf8"
+);
 const serviceAccount = JSON.parse(decoded);
-
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -57,7 +58,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const db = client.db("contest_hub_db");
     const contestCollection = db.collection("contest");
     const usersCollection = db.collection("users");
@@ -169,7 +170,7 @@ async function run() {
 
     app.patch("/users/:email", async (req, res) => {
       const email = req.params.email;
-      
+
       const isExists = await usersCollection.findOne({ email });
       if (isExists.email !== email) {
         return res
@@ -395,7 +396,7 @@ async function run() {
     app.delete(
       "/contest/:id",
       veriffyFBToken,
-      verifyAdmin,
+      verifyCreator,
       async (req, res) => {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
@@ -579,12 +580,17 @@ async function run() {
             transactionId: transactionId,
             registeredAt: new Date(),
           });
+
+          await contestCollection.updateOne(
+            { _id: new ObjectId(contestId) },
+            { $inc: { participantsCount: 1 } }
+          );
         }
 
-        await contestCollection.updateOne(
-          { _id: new ObjectId(contestId) },
-          { $inc: { participantsCount: 1 } }
-        );
+        // await contestCollection.updateOne(
+        //   { _id: new ObjectId(contestId) },
+        //   { $inc: { participantsCount: 1 } }
+        // );
 
         res.send({
           success: true,
